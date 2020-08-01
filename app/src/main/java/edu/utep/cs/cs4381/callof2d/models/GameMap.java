@@ -11,5 +11,9 @@ public class GameMap extends MapData{
         tiles.add(".................................................");
         tiles.add(".................................................");
         tiles.add("1111111111111111111111111111111111111111111111111");
+
+        backgroundDataList = new ArrayList<>();
+
+        backgroundDataList.add(new BackgroundData("background", false, -1, -10, 25,8,35));
     }
 }

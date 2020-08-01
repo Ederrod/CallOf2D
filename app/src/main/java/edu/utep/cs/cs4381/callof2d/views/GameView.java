@@ -2,7 +2,6 @@ package edu.utep.cs.cs4381.callof2d.views;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
@@ -13,14 +12,13 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
-import android.view.View;
 
 import java.util.List;
 
-import edu.utep.cs.cs4381.callof2d.R;
 import edu.utep.cs.cs4381.callof2d.controllers.InputController;
 import edu.utep.cs.cs4381.callof2d.managers.GameManager;
-import edu.utep.cs.cs4381.callof2d.models.GameObject;
+import edu.utep.cs.cs4381.callof2d.models.Background;
+import edu.utep.cs.cs4381.callof2d.models.gameobjects.GameObject;
 import edu.utep.cs.cs4381.callof2d.views.utils.Viewport;
 
 public class GameView extends SurfaceView implements Runnable {
@@ -51,24 +49,16 @@ public class GameView extends SurfaceView implements Runnable {
     // Input handler
     private InputController inputCon;
 
-    private Bitmap background;
-
 
     public GameView(Context context, int screenWidth, int screenHeight) {
         super(context);
-
-        background = getResizedBitmap(
-                BitmapFactory.decodeResource(getResources(), R.drawable.background),
-                screenWidth,
-                screenHeight
-        );
 
         holder = getHolder();
         paint = new Paint();
 
         viewport = new Viewport(screenWidth, screenHeight);
 
-        loadGame(5,2);
+        loadGame(1,16);
 
     }
 
@@ -183,11 +173,10 @@ public class GameView extends SurfaceView implements Runnable {
             // Lock canvas from any other process that might want to use it
             canvas = holder.lockCanvas();
 
-            // Temp background
-            // TODO: Draw background image
-            canvas.drawBitmap(background, 0, 0, paint);
-//            paint.setColor(Color.argb(255, 0, 0, 255));
-//            canvas.drawColor(Color.argb(255, 0, 0, 255));
+            paint.setColor(Color.argb(255, 0, 0, 255));
+            canvas.drawColor(Color.argb(255, 0, 0, 255));
+
+            drawBackground(0, -3);
 
             Rect toScreen2d = new Rect();
             for (int layer = -1; layer <= 1; layer++) {
@@ -203,7 +192,7 @@ public class GameView extends SurfaceView implements Runnable {
                         );
 
                         if (go.isAnimated()) {
-                            if (go.getFacing() == GameObject.RIGHT) {
+                            if (go.getFacing() == GameObject.LEFT) {
                                 Matrix flipper = new Matrix();
                                 flipper.preScale(-1, 1);
                                 Rect r = go.getRectToDraw(System.currentTimeMillis());
@@ -252,20 +241,43 @@ public class GameView extends SurfaceView implements Runnable {
         }
     }
 
-    private Bitmap getResizedBitmap(Bitmap bm, int screenWidth, int screenHeight) {
-        int width = bm.getWidth();
-        int height = bm.getHeight();
-        float scaleWidth = ((float) screenWidth) / width;
-        float scaleHeight = ((float) screenHeight) / height;
-        // CREATE A MATRIX FOR THE MANIPULATION
-        Matrix matrix = new Matrix();
-        // RESIZE THE BIT MAP
-        matrix.postScale(scaleWidth, scaleHeight);
+    private void drawBackground(int start, int stop) {
+        Rect fromRect1 = new Rect(), toRect1 = new Rect();
+        Rect fromRect2 = new Rect(), toRect2 = new Rect();
 
-        // "RECREATE" THE NEW BITMAP
-        Bitmap resizedBitmap = Bitmap.createBitmap(
-                bm, 0, 0, width, height, matrix, false);
-        bm.recycle();
-        return resizedBitmap;
+        for (Background bg : manager.getBackgrounds()) {
+
+            if (bg.getZ() < start && bg.getZ() > stop) {
+                if (!viewport.clipObject(-1, bg.getY(), 100, bg.getHeight())) {
+                    int startY = (int) (viewport.getYCenter() - (viewport.getViewportWorldCenterY() - bg.getY()) * viewport.getPixelsPerMetreY());
+                    int endY = (int) (viewport.getYCenter() - (viewport.getViewportWorldCenterY() - bg.getEndY()) * viewport.getPixelsPerMetreY());
+
+                    fromRect1 = new Rect(0, 0, bg.getWidth() - bg.getXClip(), bg.getHeight());
+                    toRect1 = new Rect(bg.getXClip(), startY, bg.getWidth(), endY);
+                    fromRect2 = new Rect(bg.getWidth() - bg.getXClip(), 0, bg.getWidth(), bg.getHeight());
+                    toRect2 = new Rect(0, startY, bg.getXClip(), endY);
+                }
+
+                // draw backgrounds
+                if (!bg.isReversedFirst()) {
+                    canvas.drawBitmap(bg.getBitmap(), fromRect1, toRect1, paint);
+                    canvas.drawBitmap(bg.getBitmapReversed(), fromRect2, toRect2, paint);
+                } else {
+                    canvas.drawBitmap(bg.getBitmap(), fromRect2, toRect2, paint);
+                    canvas.drawBitmap(bg.getBitmapReversed(), fromRect1, toRect1, paint);
+                }
+
+                // calculate the next value for the background's clipping position by modifying xClip
+                // and switching which background is drawn first, if necessary.
+                bg.setXClip(bg.getXClip() - (int) (manager.getPlayer().getxVelocity() / (20 / bg.getSpeed())));
+                if (bg.getXClip() >= bg.getWidth()) {
+                    bg.setXClip(0);
+                    bg.setReversedFirst(!bg.isReversedFirst());
+                } else if (bg.getXClip() <= 0) {
+                    bg.setXClip(bg.getWidth());
+                    bg.setReversedFirst(!bg.isReversedFirst());
+                }
+            }
+        }
     }
 }

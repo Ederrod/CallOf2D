@@ -1,5 +1,7 @@
 package edu.utep.cs.cs4381.callof2d.models;
 
+import edu.utep.cs.cs4381.callof2d.models.gameobjects.GameObject;
+
 public class Ground extends GameObject {
     final private static float HEIGHT = 1f;
     final private static float WIDTH = 1f;

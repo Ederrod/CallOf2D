@@ -84,6 +84,14 @@ public class Viewport {
         return pixelsPerMetreY;
     }
 
+    public int getYCenter() {
+        return screenCenterY;
+    }
+
+    public float getViewportWorldCenterY() {
+        return currentViewportWorldCenter.y;
+    }
+
     public void setWorldCenter(float x, float y) {
         currentViewportWorldCenter.x = x;
         currentViewportWorldCenter.y = y;

@@ -1,9 +1,13 @@
-package edu.utep.cs.cs4381.callof2d.models;
+package edu.utep.cs.cs4381.callof2d.models.gameobjects;
 
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Rect;
+
+import edu.utep.cs.cs4381.callof2d.models.Animation;
+import edu.utep.cs.cs4381.callof2d.models.RectHitbox;
+import edu.utep.cs.cs4381.callof2d.models.Vector2Point5D;
 
 public abstract class GameObject {
 

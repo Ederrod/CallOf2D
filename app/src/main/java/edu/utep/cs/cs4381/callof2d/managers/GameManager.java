@@ -8,11 +8,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import edu.utep.cs.cs4381.callof2d.controllers.InputController;
+import edu.utep.cs.cs4381.callof2d.models.Background;
+import edu.utep.cs.cs4381.callof2d.models.BackgroundData;
 import edu.utep.cs.cs4381.callof2d.models.GameMap;
-import edu.utep.cs.cs4381.callof2d.models.GameObject;
+import edu.utep.cs.cs4381.callof2d.models.gameobjects.GameObject;
 import edu.utep.cs.cs4381.callof2d.models.Ground;
 import edu.utep.cs.cs4381.callof2d.models.MapData;
-import edu.utep.cs.cs4381.callof2d.models.Player;
+import edu.utep.cs.cs4381.callof2d.models.gameobjects.Player;
 
 public class GameManager {
 
@@ -30,6 +32,8 @@ public class GameManager {
     private List<Rect> currentButtons;
     private Bitmap[] bitmapsArray;
 
+    private List<Background> backgrounds;
+
     public GameManager(Context context, int pixelsPerMetre, int screenWidth,
                         InputController ic, String level, float px, float py) {
         this.level = level;
@@ -43,6 +47,7 @@ public class GameManager {
         loadMapData(context, pixelsPerMetre, px, py);
 //        setWaypoints();
         playing = true;
+        loadBackgrounds(context, pixelsPerMetre, screenWidth);
     }
 
     public int getBitmapIndex(char blockType) {
@@ -114,6 +119,10 @@ public class GameManager {
 
     public List<Rect> getCurrentButtons() {
         return currentButtons;
+    }
+
+    public List<Background> getBackgrounds() {
+        return backgrounds;
     }
 
     public Player getPlayer() {
@@ -208,6 +217,14 @@ public class GameManager {
                     }
                 }
             }
+        }
+    }
+
+    private void loadBackgrounds(Context context, int pixelsPerMetre, int screenWidth) {
+        backgrounds = new ArrayList<>();
+
+        for (BackgroundData bgData : mapData.getBackgroundDataList()) {
+            backgrounds.add(new Background(context, pixelsPerMetre, screenWidth, bgData));
         }
     }
 }

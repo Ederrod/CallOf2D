@@ -1,6 +1,10 @@
-package edu.utep.cs.cs4381.callof2d.models;
+package edu.utep.cs.cs4381.callof2d.models.gameobjects;
 
 import android.content.Context;
+
+import edu.utep.cs.cs4381.callof2d.models.RectHitbox;
+import edu.utep.cs.cs4381.callof2d.models.Vector2Point5D;
+import edu.utep.cs.cs4381.callof2d.models.gameobjects.GameObject;
 
 public class Player extends GameObject {
 
@@ -40,7 +44,7 @@ public class Player extends GameObject {
         // Standing still to start with
         setxVelocity(0);
         setyVelocity(0);
-        setFacing(LEFT);
+        setFacing(RIGHT);
         isFalling = false;
 
         // Now for the player's other attributes
@@ -113,25 +117,25 @@ public class Player extends GameObject {
         float ly = location.y;
 
         //update the player feet hitbox
-        rectHitboxFeet.top = ly + getHeight() * .95f;
-        rectHitboxFeet.left = lx + getWidth() * .2f;
-        rectHitboxFeet.bottom = ly + getHeight() * .98f;
-        rectHitboxFeet.right = lx + getWidth() * .8f;
+        rectHitboxFeet.setTop(ly + getHeight() * .95f);
+        rectHitboxFeet.setLeft(lx + getWidth() * .2f);
+        rectHitboxFeet.setBottom(ly + getHeight() * .98f);
+        rectHitboxFeet.setRight(lx + getWidth() * .8f);
         // Update player head hitbox
-        rectHitboxHead.top = ly;
-        rectHitboxHead.left = lx + getWidth() * .4f;
-        rectHitboxHead.bottom = ly + getHeight() * .2f;
-        rectHitboxHead.right = lx + getWidth() * .6f;
+        rectHitboxHead.setTop(ly);
+        rectHitboxHead.setLeft(lx + getWidth() * .4f);
+        rectHitboxHead.setBottom(ly + getHeight() * .2f);
+        rectHitboxHead.setRight(lx + getWidth() * .6f);
         // Update player left hitbox
-        rectHitboxLeft.top = ly + getHeight() * .2f;
-        rectHitboxLeft.left = lx + getWidth() * .2f;
-        rectHitboxLeft.bottom = ly + getHeight() * .8f;
-        rectHitboxLeft.right = lx + getWidth() * .3f;
+        rectHitboxLeft.setTop(ly + getHeight() * .2f);
+        rectHitboxLeft.setLeft(lx + getWidth() * .2f);
+        rectHitboxLeft.setBottom(ly + getHeight() * .8f);
+        rectHitboxLeft.setRight(lx + getWidth() * .3f);
         // Update player right hitbox
-        rectHitboxRight.top = ly + getHeight() * .2f;
-        rectHitboxRight.left = lx + getWidth() * .8f;
-        rectHitboxRight.bottom = ly + getHeight() * .8f;
-        rectHitboxRight.right = lx + getWidth() * .7f;
+        rectHitboxRight.setTop(ly + getHeight() * .2f);
+        rectHitboxRight.setLeft(lx + getWidth() * .8f);
+        rectHitboxRight.setBottom(ly + getHeight() * .8f);
+        rectHitboxRight.setRight(lx + getWidth() * .7f);
     }
 
     public int checkCollisions(RectHitbox rectHitbox) {
@@ -140,28 +144,28 @@ public class Player extends GameObject {
         if (this.rectHitboxLeft.intersects(rectHitbox)) {
             // Left has collided
             // Move player just to right of current hitbox
-            this.setWorldLocationX(rectHitbox.right - getWidth() * .2f);
+            this.setWorldLocationX(rectHitbox.getRight() - getWidth() * .2f);
             collided = 1;
         }
         // The right
         if (this.rectHitboxRight.intersects(rectHitbox)) {
             // Right has collided
             // Move player just to left of current hitbox
-            this.setWorldLocationX(rectHitbox.left - getWidth() * .8f);
+            this.setWorldLocationX(rectHitbox.getLeft() - getWidth() * .8f);
             collided = 1;
         }
         // The feet
         if (this.rectHitboxFeet.intersects(rectHitbox)) {
             // Feet have collided
             // Move feet to just above current hitbox
-            this.setWorldLocationY(rectHitbox.top - getHeight());
+            this.setWorldLocationY(rectHitbox.getTop() - getHeight());
             collided = 2;
         }
         // Now the head
         if (this.rectHitboxHead.intersects(rectHitbox)) {
             // Head has collided. Ouch!
             // Move head to just below current hitbox bottom
-            this.setWorldLocationY(rectHitbox.bottom);
+            this.setWorldLocationY(rectHitbox.getBottom());
             collided = 3;
         }
         return collided;

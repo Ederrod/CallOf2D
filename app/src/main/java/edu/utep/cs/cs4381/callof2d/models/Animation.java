@@ -16,7 +16,7 @@ public class Animation {
     private int frameHeight;
     int pixelsPerMetre;
 
-    Animation(Context context,
+    public Animation(Context context,
               String bitmapName, float frameHeight,
               float frameWidth, int animFps,
               int frameCount, int pixelsPerMetre){
