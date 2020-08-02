@@ -1,4 +1,4 @@
-package edu.utep.cs.cs4381.callof2d.models;
+package edu.utep.cs.cs4381.callof2d.model;
 
 public class BackgroundData {
     String bitmapName;
@@ -13,8 +13,8 @@ public class BackgroundData {
     int width;
 
     public BackgroundData(String bitmap, boolean isParallax,
-                          int layer, float startY, float endY,
-                          float speed, int height){
+                   int layer, float startY, float endY,
+                   float speed, int height){
         this.bitmapName = bitmap;
         this.isParallax = isParallax;
         this.layer = layer;

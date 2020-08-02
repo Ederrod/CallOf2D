@@ -1,11 +1,11 @@
-package edu.utep.cs.cs4381.callof2d.models;
+package edu.utep.cs.cs4381.callof2d.model;
 
 public class RectHitbox {
-    float top;
-    float left;
-    float bottom;
-    float right;
-    float height;
+    public float top;
+    public float left;
+    public float bottom;
+    public float right;
+    public float height;
 
     public boolean intersects(RectHitbox rectHitbox){
         boolean hit = false;
@@ -22,11 +22,12 @@ public class RectHitbox {
         return hit;
     }
 
-    public void setTop(float top) {
-        this.top = top;
-    }
+
     public float getTop() {
         return top;
+    }
+    public void setTop(float top) {
+        this.top = top;
     }
 
     public float getLeft() {
@@ -36,17 +37,16 @@ public class RectHitbox {
         this.left = left;
     }
 
-    public void setBottom(float bottom) {
-        this.bottom = bottom;
-    }
     public float getBottom() {
         return bottom;
+    }
+    public void setBottom(float bottom) {
+        this.bottom = bottom;
     }
 
     public float getRight() {
         return right;
     }
-
     public void setRight(float right) {
         this.right = right;
     }
@@ -54,7 +54,6 @@ public class RectHitbox {
     public float getHeight() {
         return height;
     }
-
     public void setHeight(float height) {
         this.height = height;
     }

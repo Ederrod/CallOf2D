@@ -1,13 +1,13 @@
-package edu.utep.cs.cs4381.callof2d.models.gameobjects;
+package edu.utep.cs.cs4381.callof2d.model.objects;
 
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Rect;
 
-import edu.utep.cs.cs4381.callof2d.models.Animation;
-import edu.utep.cs.cs4381.callof2d.models.RectHitbox;
-import edu.utep.cs.cs4381.callof2d.models.Vector2Point5D;
+import edu.utep.cs.cs4381.callof2d.model.Animation;
+import edu.utep.cs.cs4381.callof2d.model.RectHitbox;
+import edu.utep.cs.cs4381.callof2d.model.Vector2Point5D;
 
 public abstract class GameObject {
 
@@ -112,7 +112,7 @@ public abstract class GameObject {
         this.type = type;
     }
 
-    void move(long fps){
+    public void move(long fps){
         if(xVelocity != 0) {
             this.worldLocation.x += xVelocity / fps;
         }
@@ -182,7 +182,8 @@ public abstract class GameObject {
         return animated;
     }
 
-    public void setAnimated(Context context, int pixelsPerMetre, boolean animated){
+    public void setAnimated(Context context, int pixelsPerMetre,
+                            boolean animated){
         this.animated = animated;
         this.anim = new Animation(context, bitmapName,
                 height,

@@ -1,4 +1,4 @@
-package edu.utep.cs.cs4381.callof2d.models;
+package edu.utep.cs.cs4381.callof2d.model;
 
 import android.content.Context;
 import android.graphics.Bitmap;

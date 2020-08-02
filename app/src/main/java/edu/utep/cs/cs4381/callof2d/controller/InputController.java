@@ -1,4 +1,4 @@
-package edu.utep.cs.cs4381.callof2d.controllers;
+package edu.utep.cs.cs4381.callof2d.controller;
 
 import android.graphics.Rect;
 import android.view.MotionEvent;
@@ -6,9 +6,9 @@ import android.view.MotionEvent;
 import java.util.ArrayList;
 import java.util.List;
 
-import edu.utep.cs.cs4381.callof2d.managers.GameManager;
-//import edu.utep.cs.cs4381.platformer.model.SoundManager;
-import edu.utep.cs.cs4381.callof2d.views.utils.Viewport;
+import edu.utep.cs.cs4381.callof2d.managers.LevelManager;
+import edu.utep.cs.cs4381.callof2d.managers.SoundManager;
+import edu.utep.cs.cs4381.callof2d.model.Viewport;
 
 public class InputController {
     Rect left;
@@ -22,32 +22,44 @@ public class InputController {
         int buttonWidth = screenWidth / 8;
         int buttonHeight = screenHeight / 7;
         int buttonPadding = screenWidth / 80;
-        left = new Rect(buttonPadding,
+
+        left = new Rect(
+                buttonPadding,
                 screenHeight - buttonHeight - buttonPadding,
                 buttonWidth,
-                screenHeight - buttonPadding);
-        right = new Rect(buttonWidth + buttonPadding,
+                screenHeight - buttonPadding
+        );
+
+        right = new Rect(
+                buttonWidth + buttonPadding,
                 screenHeight - buttonHeight - buttonPadding,
                 buttonWidth + buttonPadding + buttonWidth,
-                screenHeight - buttonPadding);
-        jump = new Rect(screenWidth - buttonWidth - buttonPadding,
-                screenHeight - buttonHeight - buttonPadding -
-                        buttonHeight - buttonPadding,
-                screenWidth - buttonPadding,
-                screenHeight - buttonPadding - buttonHeight -
-                        buttonPadding);
-        shoot = new Rect(screenWidth - buttonWidth - buttonPadding,
+                screenHeight - buttonPadding
+        );
+
+        jump = new Rect(
+                (buttonWidth/2) - buttonPadding,
+                screenHeight - buttonHeight - buttonPadding - buttonHeight - buttonPadding,
+                buttonWidth + (buttonWidth/2) + buttonPadding,
+                screenHeight - buttonPadding - buttonHeight - buttonPadding
+        );
+
+        shoot = new Rect(
+                screenWidth - buttonWidth - buttonPadding,
                 screenHeight - buttonHeight - buttonPadding,
                 screenWidth - buttonPadding,
-                screenHeight - buttonPadding);
-        pause = new Rect(screenWidth - buttonPadding -
-                buttonWidth,
+                screenHeight - buttonPadding
+        );
+
+        pause = new Rect(
+                screenWidth - buttonPadding - buttonWidth,
                 buttonPadding,
                 screenWidth - buttonPadding,
-                buttonPadding + buttonHeight);
+                buttonPadding + buttonHeight
+        );
     }
 
-    public List<Rect> getButtons(){
+    public List getButtons(){
         //create an array of buttons for the draw method
         ArrayList<Rect> currentButtonList = new ArrayList<>();  // FIXME
         currentButtonList.add(left);
@@ -58,45 +70,48 @@ public class InputController {
         return currentButtonList;
     }
 
-    public void handleInput(MotionEvent motionEvent, GameManager manager, /*SoundManager sound,*/ Viewport vp) {
+    public void handleInput(MotionEvent motionEvent, LevelManager l, SoundManager sound, Viewport vp) {
         int pointerCount = motionEvent.getPointerCount();
         for (int i = 0; i < pointerCount; i++) {
             int x = (int) motionEvent.getX(i);
             int y = (int) motionEvent.getY(i);
-
-            if(manager.isPlaying()) {
-                switch (motionEvent.getAction() & MotionEvent.ACTION_MASK) {
+            if(l.isPlaying()) {
+                switch (motionEvent.getAction() &
+                        MotionEvent.ACTION_MASK) {
                     case MotionEvent.ACTION_DOWN:
                     case MotionEvent.ACTION_POINTER_DOWN:
                         if (right.contains(x, y)) {
-                            manager.getPlayer().setPressingRight(true);
-                            manager.getPlayer().setPressingLeft(false);
+                            l.getPlayer().setPressingRight(true);
+                            l.getPlayer().setPressingLeft(false);
                         } else if (left.contains(x, y)) {
-                            manager.getPlayer().setPressingLeft(true);
-                            manager.getPlayer().setPressingRight(false);
+                            l.getPlayer().setPressingLeft(true);
+                            l.getPlayer().setPressingRight(false);
                         } else if (jump.contains(x, y)) {
-                            manager.getPlayer().startJump(/*sound*/); // FIXME
+                            l.getPlayer().startJump(sound);
                         } else if (shoot.contains(x, y)) {
-                            if (manager.getPlayer().pullTrigger()) {
+                            if (l.getPlayer().pullTrigger()) {
+
 //                                sound.play(SoundManager.Sound.SHOOT);
                             }
                         } else if (pause.contains(x, y)) {
-                            manager.switchPlayingStatus();
+                            l.switchPlayingStatus();
                         }
                         break;
                     case MotionEvent.ACTION_UP:
                         if (right.contains(x, y)) {
-                            manager.getPlayer().setPressingRight(false);
+                            l.getPlayer().setPressingRight(false);
                         } else if (left.contains(x, y)) {
-                            manager.getPlayer().setPressingLeft(false);
+                            l.getPlayer().setPressingLeft(false);
                         }
                         break;
                     //Handle shooting here
                     case MotionEvent.ACTION_POINTER_UP:
                         if (right.contains(x, y)) {
-                            manager.getPlayer().setPressingRight(false);
+                            l.getPlayer().setPressingRight(false);
+                            //Log.w("rightP:", "up" );
                         } else if (left.contains(x, y)) {
-                            manager.getPlayer().setPressingLeft(false);
+                            l.getPlayer().setPressingLeft(false);
+                            //Log.w("leftP:", "up" );
                         } else if (shoot.contains(x, y)) {
                             //Handle shooting here
                         } else if (jump.contains(x, y)) {
@@ -108,8 +123,17 @@ public class InputController {
                 //Move the viewport around to explore the map
                 switch (motionEvent.getAction() & MotionEvent.ACTION_MASK) {
                     case MotionEvent.ACTION_DOWN:
-                        if (pause.contains(x, y)) {
-                            manager.switchPlayingStatus();
+                        if (right.contains(x, y)) {
+                            vp.moveViewportRight(l.getMapWidth());
+                        } else if (left.contains(x, y)) {
+                            vp.moveViewportLeft();
+                        } else if (jump.contains(x, y)) {
+                            vp.moveViewportUp();
+                        } else if (shoot.contains(x, y)) {
+                            vp.moveViewportDown(l.getMapHeight());
+                        } else if (pause.contains(x, y)) {
+                            l.switchPlayingStatus();
+                            //Log.w("pause:", "DOWN" );
                         }
                         break;
                 }

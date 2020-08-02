@@ -10,7 +10,7 @@ import edu.utep.cs.cs4381.callof2d.views.GameView;
 
 public class MainActivity extends AppCompatActivity {
 
-    private GameView gameView;
+    private GameView platformView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -19,21 +19,20 @@ public class MainActivity extends AppCompatActivity {
         Display display = getWindowManager().getDefaultDisplay();
         Point resolution = new Point();
         display.getSize(resolution);
+        platformView = new GameView(this, resolution.x, resolution.y);
 
-        gameView = new GameView(this, resolution.x, resolution.y);
-
-        setContentView(gameView);
+        setContentView(platformView);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        gameView.pause();
+        platformView.pause();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        gameView.resume();
+        platformView.resume();
     }
 }

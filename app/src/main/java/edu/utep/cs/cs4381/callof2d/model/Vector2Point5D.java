@@ -1,4 +1,4 @@
-package edu.utep.cs.cs4381.callof2d.models;
+package edu.utep.cs.cs4381.callof2d.model;
 
 public class Vector2Point5D {
     public float x;
