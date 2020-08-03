@@ -8,6 +8,8 @@ import edu.utep.cs.cs4381.callof2d.model.objects.GameObject;
 
 public class Gun extends GameObject{
 
+    private int damage;
+
     protected int maxBullets = 10;
     protected int numBullets;
     protected int nextBullet;
@@ -34,6 +36,14 @@ public class Gun extends GameObject{
             bullet.update(fps, gravity);
         }
         this.move(fps);
+    }
+
+
+    public int getDamage(){
+        return damage;
+    }
+    protected void setDamage(int damage) {
+        this.damage = damage;
     }
 
     public int getRateOfFire() {

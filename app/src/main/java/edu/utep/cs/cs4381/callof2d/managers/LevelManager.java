@@ -15,19 +15,7 @@ import edu.utep.cs.cs4381.callof2d.model.levels.LevelData;
 import edu.utep.cs.cs4381.callof2d.model.objects.*;
 import edu.utep.cs.cs4381.callof2d.model.objects.guns.upgrades.AssaultUpgrade;
 import edu.utep.cs.cs4381.callof2d.model.objects.guns.upgrades.SmgUpgrade;
-import edu.utep.cs.cs4381.callof2d.model.objects.stationary.Boulders;
-import edu.utep.cs.cs4381.callof2d.model.objects.stationary.Brick;
-import edu.utep.cs.cs4381.callof2d.model.objects.stationary.Coal;
 import edu.utep.cs.cs4381.callof2d.model.objects.stationary.Concrete;
-import edu.utep.cs.cs4381.callof2d.model.objects.stationary.Fire;
-import edu.utep.cs.cs4381.callof2d.model.objects.stationary.Grass;
-import edu.utep.cs.cs4381.callof2d.model.objects.stationary.Lampost;
-import edu.utep.cs.cs4381.callof2d.model.objects.stationary.Scorched;
-import edu.utep.cs.cs4381.callof2d.model.objects.stationary.Snow;
-import edu.utep.cs.cs4381.callof2d.model.objects.stationary.Stalactite;
-import edu.utep.cs.cs4381.callof2d.model.objects.stationary.Stone;
-import edu.utep.cs.cs4381.callof2d.model.objects.stationary.Tree;
-import edu.utep.cs.cs4381.callof2d.model.objects.stationary.Tree2;
 
 public class LevelManager {
 
@@ -38,7 +26,6 @@ public class LevelManager {
     private Level level;
     private int mapWidth;
     private int mapHeight;
-    private Player player;
     private int playerIndex;
     private boolean playing;
     private float gravity;
@@ -77,68 +64,20 @@ public class LevelManager {
             case '.':
                 index = 0;
                 break;
-            case '1':
+            case 'p':
                 index = 1;
                 break;
-            case 'p':
+            case 'a':
                 index = 2;
                 break;
-            case 'a':
+            case '5':
                 index = 3;
                 break;
-            case 'u':
+            case 's':
                 index = 4;
                 break;
-            case 'e':
-                index = 5;
-                break;
-            case 'g':
-                index = 6;
-                break;
-            case 'f':
-                index = 7;
-                break;
-            case '2':
-                index = 8;
-                break;
-            case '3':
-                index = 9;
-                break;
-            case '4':
-                index = 10;
-                break;
-            case '5':
-                index = 11;
-                break;
-            case '6':
-                index = 12;
-                break;
-            case '7':
-                index = 13;
-                break;
-            case 'w':
-                index = 14;
-                break;
-            case 'x':
-                index = 15;
-                break;
-            case 'l':
-                index = 16;
-                break;
-            case 'r':
-                index = 17;
-                break;
-            case 's':
-                index = 18;
-                break;
-            case 'z':
-                index = 19;
-                break;
-            case 't':
-                index = 20;
-                break;
             case 'E':
-                index = 21;
+                index = 5;
                 break;
         }
         return index;
@@ -189,7 +128,7 @@ public class LevelManager {
     }
 
     public Player getPlayer() {
-        return player;
+        return (Player) gameObjects.get(playerIndex);
     }
 
     public boolean isPlaying() {
@@ -245,7 +184,6 @@ public class LevelManager {
 
     private void loadMapData(Context context, int pixelsPerMeter, float px, float py) {
         int currentIndex = -1;
-        int teleportIndex = -1;
         mapHeight = levelData.getTiles().size();
         mapWidth = levelData.getTiles().get(0).length();
         for (int i = 0; i < levelData.getTiles().size(); i++) {
@@ -254,74 +192,24 @@ public class LevelManager {
                 if (c != '.') {
                     currentIndex++;
                     switch (c) {
-                        case '1':
-                            gameObjects.add(new Grass(j, i, c));
-                            break;
                         case 'p':
-                            player = new Player(context, px, py, pixelsPerMeter, 'p');
-                            playerObjects.add(player);
-                            gameObjects.add(player);
                             playerIndex = currentIndex;
+                            gameObjects.add(new Player(context, px, py, pixelsPerMeter, 'p'));
+                            playerObjects.add(getPlayer());
                             break;
                         case 'E':
-                            Player enemy = new Player(context, j, i, pixelsPerMeter, 'E');
-                            playerObjects.add(enemy);
+                            Enemy enemy = new Enemy(context, j, i, pixelsPerMeter);
                             gameObjects.add(enemy);
+                            playerObjects.add(enemy);
                             break;
                         case 'a':
                             gameObjects.add(new AssaultUpgrade(j, i, c));
                             break;
-                        case 'u':
-//                            gameObjects.add(new SmgUpgrade(j, i, c));
-                            break;
-                        case 'e':
-                            gameObjects.add(new ExtraLife(j, i, c));
-                            break;
-                        case 'g':
-//                            gameObjects.add(new Guard(context, j, i, c, pixelsPerMeter));
-                            break;
-                        case 'f':
-                            gameObjects.add(new Fire(context, j, i, c, pixelsPerMeter));
-                            break;
-                        case '2':
-                            gameObjects.add(new Snow(j, i, c));
-                            break;
-                        case '3':
-                            gameObjects.add(new Brick(j, i, c));
-                            break;
-                        case '4':
-                            gameObjects.add(new Coal(j, i, c));
-                            break;
                         case '5':
                             gameObjects.add(new Concrete(j, i, c));
                             break;
-                        case '6':
-                            gameObjects.add(new Scorched(j, i, c));
-                            break;
-                        case '7':
-                            gameObjects.add(new Stone(j, i, c));
-                            break;
-                        case 'w':
-                            gameObjects.add(new Tree(j, i, c));
-                            break;
-                        case 'x':
-                            gameObjects.add(new Tree2(j, i, c));
-                            break;
-                        case 'l':
-                            gameObjects.add(new Lampost(j, i, c));
-                            break;
-                        case 'r':
-                            gameObjects.add(new Stalactite(j, i, c));
-                            break;
                         case 's':
                             gameObjects.add(new SmgUpgrade(j, i, c));
-                            break;
-                        case 'z':
-                            gameObjects.add(new Boulders(j, i, c));
-                            break;
-                        case 't':
-                            teleportIndex++;
-                            gameObjects.add(new Teleport(j, i, c, levelData.getLocations().get(teleportIndex)));
                             break;
                     }
                     if (bitmapsArray[getBitmapIndex(c)] == null) {

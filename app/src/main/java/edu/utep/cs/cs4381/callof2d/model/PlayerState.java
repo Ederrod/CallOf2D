@@ -46,23 +46,7 @@ public class PlayerState {
         return numCredits;
     }
 
-    public void decreaseHealth() {
-        health -= 10;
+    public void decreaseHealth(int damage) {
+        health -= damage;
     }
-
-//    public void loseLife(){
-//        lives--;
-//    }
-//
-//    public void addLife(){
-//        lives++;
-//    }
-
-//    public void resetLives(){
-//        lives = 3;
-//    }
-//
-//    public void resetCredits(){
-//        lives = 0;
-//    }
 }

@@ -8,5 +8,7 @@ public class AssultRifle extends Gun{
         super(playerX, playerY, playerWidth, playerHeight, "assaultrifle");
         setWidth(WIDTH);
         setHeight(HEIGHT);
+        setDamage(30);
+        setFireRate(3);
     }
 }

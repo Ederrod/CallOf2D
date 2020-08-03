@@ -50,17 +50,15 @@ public class Player extends GameObject {
 
         setWorldLocation(worldStartX, worldStartY, 0);
 
+        bfg = new Smg(worldStartX, worldStartY, getWidth(), getHeight());
+
         // Standing still to start with
         setxVelocity(0);
         setyVelocity(0);
         setFacing(RIGHT);
         isFalling = false;
 
-        if (type == 'p') {
-            incrementalVel = 0.5f;
-        } else {
-            incrementalVel = 0.1f;
-        }
+        setIncrementalVel(0.5f);
 
         // Now for the player's other attributes
         // Our game engine will use these
@@ -73,7 +71,10 @@ public class Player extends GameObject {
         rectHitboxLeft = new RectHitbox();
         rectHitboxRight = new RectHitbox();
 
-        bfg = new Smg(worldStartX, worldStartY, getWidth(), getHeight());
+    }
+
+    public void setIncrementalVel(float incrementalVel) {
+        this.incrementalVel = incrementalVel;
     }
 
     public void setPressingRight(boolean flag) {
@@ -82,9 +83,6 @@ public class Player extends GameObject {
 
     public float incrementVelocity = 0;
     public void update(long fps, float gravity) {
-//        if (getType() == 'E') {
-//            setPressingLeft(true);
-//        }
 
         if ((incrementVelocity + INIT_X_VELOCITY) < MAX_X_VELOCITY) {
             incrementVelocity += incrementalVel;
@@ -101,11 +99,9 @@ public class Player extends GameObject {
         //which way is player facing?
         if (this.getxVelocity() > 0) {
             //facing right
-            bfg.setFacing(RIGHT);
             setFacing(RIGHT);
         } else if (this.getxVelocity() < 0) {
             //facing left
-            bfg.setFacing(LEFT);
             setFacing(LEFT);
         }//if 0 then unchanged
 
@@ -136,7 +132,12 @@ public class Player extends GameObject {
         // Let's go!
         this.move(fps);
         // Update the machine gun bitmap based on the location of the player.
-        bfg.updateLocWithPlayer(this.getWorldLocation().x, this.getWorldLocation().y, getWidth(), getHeight());
+        bfg.updateLocWithPlayer(
+                getWorldLocation().x,
+                getWorldLocation().y,
+                getWidth(),
+                getHeight()
+        );
 
 
         // Update all the hitboxes to the new location
@@ -208,12 +209,41 @@ public class Player extends GameObject {
         this.isPressingLeft = isPressingLeft;
     }
 
+    @Override
+    public void setActive(boolean active) {
+        super.setActive(active);
+        bfg.setActive(active);
+    }
+
+    @Override
+    public void setVisible(boolean visible) {
+        super.setVisible(visible);
+        bfg.setActive(visible);
+    }
+
+    @Override
+    public void setxVelocity(float xVelocity) {
+        super.setxVelocity(xVelocity);
+        bfg.setxVelocity(xVelocity);
+    }
+
+    @Override
+    public void setyVelocity(float yVelocity) {
+        super.setyVelocity(yVelocity);
+        bfg.setyVelocity(yVelocity);
+    }
+
+    @Override
+    public void setFacing(int facing) {
+        super.setFacing(facing);
+        bfg.setFacing(facing);
+    }
+
     public void startJump(SoundManager sm) {
         if (!isFalling) {//can't jump if falling
             if (!isJumping) {//not already jumping
                 isJumping = true;
                 jumpTime = System.currentTimeMillis();
-//                sm.play(SoundManager.Sound.JUMP);
             }
         }
     }

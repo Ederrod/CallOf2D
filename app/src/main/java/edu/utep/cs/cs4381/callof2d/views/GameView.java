@@ -1,5 +1,6 @@
 package edu.utep.cs.cs4381.callof2d.views;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -20,6 +21,7 @@ import edu.utep.cs.cs4381.callof2d.controller.InputController;
 import edu.utep.cs.cs4381.callof2d.model.Background;
 import edu.utep.cs.cs4381.callof2d.model.Location;
 import edu.utep.cs.cs4381.callof2d.model.RectHitbox;
+import edu.utep.cs.cs4381.callof2d.model.objects.Enemy;
 import edu.utep.cs.cs4381.callof2d.model.objects.GameObject;
 import edu.utep.cs.cs4381.callof2d.managers.LevelManager;
 import edu.utep.cs.cs4381.callof2d.managers.LevelManager.Level;
@@ -62,11 +64,10 @@ public class GameView extends SurfaceView implements Runnable {
         paint = new Paint();
 
         vp = new Viewport(screenWidth, screenHeight);
-//        sm = SoundManager.instance(context);
 
         ps = new PlayerState();
 
-        loadLevel(Level.CITY, -1, 20);
+        loadLevel(Level.CITY, 1, 16);
     }
 
     @Override
@@ -97,7 +98,9 @@ public class GameView extends SurfaceView implements Runnable {
         gameThread.start();
     }
 
+
     @Override
+    @SuppressLint("ClickableViewAccessibility")
     public boolean onTouchEvent(MotionEvent event) {
         if (lm != null) {
             ic.handleInput(event, lm, sm, vp);
@@ -109,7 +112,6 @@ public class GameView extends SurfaceView implements Runnable {
     private void loadLevel(Level level, float px, float py) {
         ic = new InputController(vp.getScreenWidth(), vp.getScreenHeight());
 
-//        PointF location = new PointF(px, py);
         ps.saveLocation(new PointF(px, py));
         lm = new LevelManager(
                 context,
@@ -128,7 +130,6 @@ public class GameView extends SurfaceView implements Runnable {
 
         // reload the players current fire rate from the player state
         lm.getPlayer().bfg.setFireRate(ps.getFireRate());
-
     }
 
     private void update() {
@@ -154,49 +155,6 @@ public class GameView extends SurfaceView implements Runnable {
                         if (collision > 0) {
                             // Handle game object collisions that are not bullets.
                             switch (go.getType()) {
-                                case 'c':
-                                    go.setActive(false);
-                                    go.setVisible(false);
-                                    ps.gotCredit();
-                                    if (collision != 2) {
-                                        lm.getPlayer().restorePreviousVelocity();
-                                    }
-                                    break;
-                                case 'e':
-                                    go.setActive(false);
-                                    go.setVisible(false);
-//                                    ps.addLife();
-                                    if (collision != 2) {
-                                        lm.getPlayer().restorePreviousVelocity();
-                                    }
-                                    break;
-                                case 'u':
-                                    go.setActive(false);
-                                    go.setVisible(false);
-                                    lm.getPlayer().bfg.upgradeRateOfFire();
-                                    ps.increaseFireRate();
-                                    break;
-                                case 'd':
-                                    PointF loc;
-//                                    ps.loseLife();
-                                    loc = new PointF(ps.loadLocation().x, ps.loadLocation().y);
-                                    lm.getPlayer().setWorldLocationX(loc.x);
-                                    lm.getPlayer().setWorldLocationY(loc.y);
-                                    lm.getPlayer().setxVelocity(0);
-                                    break;
-                                case 'g':
-                                case 'f':
-//                                    ps.loseLife();
-                                    loc = new PointF(ps.loadLocation().x, ps.loadLocation().y);
-                                    lm.getPlayer().setWorldLocationX(loc.x);
-                                    lm.getPlayer().setWorldLocationY(loc.y);
-                                    lm.getPlayer().setxVelocity(0);
-                                    break;
-                                case 't':
-                                    Teleport teleport = (Teleport) go;
-                                    Location target = teleport.getTarget();
-                                    loadLevel(target.getLevel(), target.getX(), target.getY());
-                                    break;
                                 case 'a':
                                     gunUpgrade(go);
                                 case 's':
@@ -216,7 +174,6 @@ public class GameView extends SurfaceView implements Runnable {
                     }
 
                     // Handle bullet collisions
-
                     for (Player gunPlayer : lm.getPlayerObjects()) {
                         for (int i = 0; i < gunPlayer.bfg.getNumBullets(); i++) {
                             RectHitbox r = new RectHitbox();
@@ -225,21 +182,13 @@ public class GameView extends SurfaceView implements Runnable {
                             r.setRight(gunPlayer.bfg.getBulletX(i) + .1f);
                             r.setBottom(gunPlayer.bfg.getBulletY(i) + .1f);
 
-                            if (go.getHitbox().intersects(r)) {
-                                gunPlayer.bfg.hideBullet(i);
-                                // Handle the collision
-                                switch (go.getType()) {
-                                    case 'p': // guard
-                                        ps.decreaseHealth();
-//                                    sm.play(SoundManager.Sound.HIT_GUARD);
-                                        break;
-                                    case 'd': // drone
-//                                    sm.play(SoundManager.Sound.EXPLODE);
-                                        go.setWorldLocation(-100, -100, 0);
-                                        break;
-                                    default:
-                                        break;
-//                                    sm.play(SoundManager.Sound.RICOCHET);
+                            if (gunPlayer == lm.getPlayer()) {
+                                handlePlayerFire(r, i);
+                            } else {
+                                int collision = lm.getPlayer().checkCollisions(r);
+                                if (collision > 0) {
+                                    gunPlayer.bfg.hideBullet(i);
+                                    ps.decreaseHealth(gunPlayer.bfg.getDamage());
                                 }
                             }
                         }
@@ -261,15 +210,19 @@ public class GameView extends SurfaceView implements Runnable {
             );
 
             // has player fallen out of the map?
-            if (lm.getPlayer().getWorldLocation().x < 0
-                    || lm.getPlayer().getWorldLocation().x > lm.getMapWidth()
-                    || lm.getPlayer().getWorldLocation().y > lm.getMapHeight()) {
-//                sm.play(SoundManager.Sound.PLAYER_BURN);
-//                ps.loseLife();
-                PointF location = new PointF(ps.loadLocation().x, ps.loadLocation().y);
-                lm.getPlayer().setWorldLocationX(location.x);
-                lm.getPlayer().setWorldLocationY(location.y);
-                lm.getPlayer().setxVelocity(0);
+            for (Player playerObject : lm.getPlayerObjects()) {
+                if (playerObject.getWorldLocation().x < 0
+                        || playerObject.getWorldLocation().x > lm.getMapWidth()
+                        || playerObject.getWorldLocation().y > lm.getMapHeight()) {
+                    if (playerObject == lm.getPlayer()) {
+                        PointF location = new PointF(ps.loadLocation().x, ps.loadLocation().y);
+                        lm.getPlayer().setWorldLocationX(location.x);
+                        lm.getPlayer().setWorldLocationY(location.y);
+                        lm.getPlayer().setxVelocity(0);
+                    } else {
+                        ((Enemy) playerObject).respawn();
+                    }
+                }
             }
             // check if game is over
             if (ps.getHealth() <= 0) {
@@ -280,6 +233,19 @@ public class GameView extends SurfaceView implements Runnable {
         }
     }
 
+    private void handlePlayerFire(RectHitbox bulletHitbox, int bulletIndex) {
+        for (Player enemyPlayer : lm.getPlayerObjects()) {
+            if (enemyPlayer == lm.getPlayer()) {
+                continue;
+            }
+
+            int collision = enemyPlayer.checkCollisions(bulletHitbox);
+            if (collision > 0) {
+                lm.getPlayer().bfg.hideBullet(bulletIndex);
+                ((Enemy) enemyPlayer).respawn();
+            }
+        }
+    }
 
     private void updateEnemy(Player enemy) {
         // Make enemy player always face player.
@@ -406,6 +372,22 @@ public class GameView extends SurfaceView implements Runnable {
                             );
                         }
                     }
+                }
+            }
+
+            paint.setColor(Color.argb(255,255,255,255));
+            for (Player playerWidthGun : lm.getPlayerObjects()) {
+                Gun bfg = playerWidthGun.bfg; // Saving player machine gun in temp var for more readable code.
+                for (int i = 0; i < bfg.getNumBullets(); i++) {
+                    toScreen2d.set(
+                            vp.worldToScreen(
+                                    bfg.getBulletX(i),
+                                    bfg.getBulletY(i),
+                                    .25f,
+                                    .05f
+                            )
+                    );
+                    canvas.drawRect(toScreen2d, paint);
                 }
             }
 

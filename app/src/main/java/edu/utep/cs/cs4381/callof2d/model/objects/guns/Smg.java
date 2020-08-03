@@ -15,5 +15,7 @@ public class Smg extends Gun {
         super(playerX, playerY, playerWidth, playerHeight, "smg");
         setWidth(WIDTH);
         setHeight(HEIGHT);
+        setDamage(20);
+        setFireRate(5);
     }
 }
